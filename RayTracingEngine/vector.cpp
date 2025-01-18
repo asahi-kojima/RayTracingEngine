@@ -2,7 +2,7 @@
 #include <math.h>
 #include <random>
 #include "vector.h"
-
+#include "util.h"
 
 f32& vec3::operator[](size_t i) 
 {
@@ -238,15 +238,12 @@ vec3 reflect(const vec3& v, const vec3& n)
 }
 
 
-
-
 vec3 random_in_unit_sphere()
 {
-	auto getRandom = []() {return rand() / (RAND_MAX + 1.0f); };
 	vec3 p;
 	do
 	{
-		p = 2.0f * vec3(getRandom(), getRandom(), getRandom()) - vec3(1, 1, 1);
+		p = vec3(RandomGenerator::uniform_real(), RandomGenerator::uniform_real(), RandomGenerator::uniform_real());
 	} while (p.lengthSquared() >= 1.0f);
 	return p;
 }

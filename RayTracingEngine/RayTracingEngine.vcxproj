@@ -27,7 +27,9 @@
     <ClInclude Include="object.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="render-target.h" />
+    <ClInclude Include="thread-pool.h" />
     <ClInclude Include="typeinfo.h" />
+    <ClInclude Include="util.h" />
     <ClInclude Include="vector.h" />
   </ItemGroup>
   <ItemGroup>

@@ -57,6 +57,8 @@ bool Node::hit(const Ray& r, const f32 t_min, const f32 t_max, HitRecord& record
 		return false;
 	}
 
+	//接触があれば、その内部とも交差している可能性があるので、
+	//内部のノードにアクセスしにいく。
 	if (isLeaf)
 	{
 		const std::shared_ptr<Hittable>& pObject = object->getObject();

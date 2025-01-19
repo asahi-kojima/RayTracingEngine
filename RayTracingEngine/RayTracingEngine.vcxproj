@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
+    <ClInclude Include="debug-setting.h" />
     <ClInclude Include="engine.h" />
     <ClInclude Include="hittable.h" />
     <ClInclude Include="material.h" />
@@ -33,6 +34,7 @@
     <ClInclude Include="vector.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="engine.cpp" />
     <ClCompile Include="material.cpp" />
     <ClCompile Include="node.cpp" />
     <ClCompile Include="object.cpp" />

@@ -52,9 +52,9 @@ public:
 			{
 				vec3 color = mPixels[calcIndex(i, j)];
 				color = vec3(sqrt(color[0]), sqrt(color[1]), sqrt(color[2]));
-				color[0] = int(255.99 * color[0]);
-				color[1] = int(255.99 * color[1]);
-				color[2] = int(255.99 * color[2]);
+				color[0] = static_cast<f32>(static_cast<s32>(255.99 * color[0]));
+				color[1] = static_cast<f32>(static_cast<s32>(255.99 * color[1]));
+				color[2] = static_cast<f32>(static_cast<s32>(255.99 * color[2]));
 				stream << color[0] << " " << color[1] << " " << color[2] << "\n";
 			}
 		}

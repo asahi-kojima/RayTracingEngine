@@ -1,6 +1,13 @@
 #pragma once
 #include <random>
+#include <WinSock2.h>
+//#include <winsock.h>
+#include <WS2tcpip.h>
+#include <Windows.h>
+#include <iostream>
 #include "typeinfo.h"
+
+#pragma comment(lib, "ws2_32.lib")
 
 class RandomGenerator
 {
@@ -30,3 +37,100 @@ inline std::random_device RandomGenerator::rd;
 inline std::mt19937 RandomGenerator::mRandomGenerator(rd());
 inline std::normal_distribution<float> RandomGenerator::mNormalDist(0.0f, 1.0f);
 inline std::uniform_real_distribution<f32> RandomGenerator::mUniform0_1Dist(0.0f, 1.0f);
+
+
+
+
+
+
+//レイトレーシングの結果を別のアプリケーションにリアルタイム送信するためのクラス
+//TCP程の慎重さは必要ないのでUDPで通信することにした
+class UDPServer
+{
+public:
+
+	void boot()
+	{
+		WORD wVersionRequested{};
+		WSADATA wsaData;
+		auto err = WSAStartup(MAKEWORD(2, 0), &wsaData);
+		if (err != 0)
+		{
+			printf("WSAStartup failed with error: %d\n", err);
+			return;
+		}
+
+
+		//ソケットの作成 : 失敗はほぼ起きないと思う。
+		if ((sockNo = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
+		{
+			perror("failed");
+			std::cout << WSAGetLastError() << std::endl;
+			assert(0);
+		}
+
+		//IPアドレスとポートを指定してバインドする
+		memset(&serverAddress, 0, sizeof(sockaddr_in));
+		{
+			serverAddress.sin_family = AF_INET;
+			serverAddress.sin_addr.s_addr = htonl(INADDR_ANY);
+			serverAddress.sin_port = htons(ServerPort);
+		}
+
+		if (bind(sockNo, reinterpret_cast<struct sockaddr*>(&serverAddress), sizeof(sockaddr_in)) < 0)
+		{
+			assert(0);
+		}
+
+
+		//データの送信先を保存するために、一度向こうからメッセージを送ってもらう。
+		constexpr u32 MaxReceiveMessageLength = 256;
+		char receiveMessageBuffer[MaxReceiveMessageLength];
+		s32 addrDataSize = sizeof(sockaddr_in);
+		auto messageSize = recvfrom(sockNo, receiveMessageBuffer, MaxReceiveMessageLength, 0, reinterpret_cast<struct sockaddr*>(&clientAddress), &addrDataSize);
+		if (messageSize < 255)
+		{
+			receiveMessageBuffer[messageSize] = '\0';
+		}
+		else
+		{
+			assert(0);
+		}
+		std::cout << "Message Received : " << std::string(receiveMessageBuffer) << std::endl;
+		std::cout << "Cliend Port Information : " << clientAddress.sin_port << std::endl;
+
+		isConnectionSuccessed = true;
+	}
+
+	void send(f32 width, f32 height, const vec3& v)
+	{
+		if (!isConnectionSuccessed)
+		{
+			assert(0);
+		}
+
+		constexpr u32 MaxSendMessageLength = 5 * sizeof(f32);
+		char messageBuffer[MaxSendMessageLength];
+		{
+			//ここでベクトルデータを格納する
+			const f32 x = v.getX(); const f32 y = v.getY(); const f32 z = v.getZ();
+			
+			memcpy(messageBuffer + sizeof(f32) * 0, &width, sizeof(f32));
+			memcpy(messageBuffer + sizeof(f32) * 1, &height, sizeof(f32));
+			memcpy(messageBuffer + sizeof(f32) * 2, &x, sizeof(f32));
+			memcpy(messageBuffer + sizeof(f32) * 3, &y, sizeof(f32));
+			memcpy(messageBuffer + sizeof(f32) * 4, &z, sizeof(f32));
+		}
+
+
+		s32 sendMessageLenght = sendto(sockNo, messageBuffer, MaxSendMessageLength, 0, reinterpret_cast<struct sockaddr*>(&clientAddress), sizeof(sockaddr_in));
+	}
+
+
+private:
+	const static s16 ServerPort = 8100;
+	s32 sockNo = -1;
+	sockaddr_in serverAddress;
+	sockaddr_in clientAddress;
+	bool isConnectionSuccessed = false;
+};

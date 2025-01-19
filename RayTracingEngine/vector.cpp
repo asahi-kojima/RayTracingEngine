@@ -112,7 +112,7 @@ vec3 vec3::operator/(const f32 value) const
 	{
 		assert(false);
 	}
-	f32 inv_value = 1.0 / value;
+	f32 inv_value = 1.0f / value;
 	return (vec3(inv_value, inv_value, inv_value) *= *this);
 }
 
@@ -122,7 +122,7 @@ vec3& vec3::operator/=(const f32 value)
 	{
 		assert(false);
 	}
-	f32 inv_value = 1.0 / value;
+	f32 inv_value = 1.0f / value;
 	this->mPos[0] *= inv_value;
 	this->mPos[1] *= inv_value;
 	this->mPos[2] *= inv_value;
@@ -243,7 +243,7 @@ vec3 random_in_unit_sphere()
 	vec3 p;
 	do
 	{
-		p = vec3(RandomGenerator::uniform_real(), RandomGenerator::uniform_real(), RandomGenerator::uniform_real());
+		p = vec3(RandomGenerator::signed_uniform_real(), RandomGenerator::signed_uniform_real(), RandomGenerator::signed_uniform_real());
 	} while (p.lengthSquared() >= 1.0f);
 	return p;
 }

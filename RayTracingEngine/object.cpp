@@ -8,19 +8,17 @@ bool AABB::hit(const Ray& r, const f32 t_min, const f32 t_max, HitRecord& record
 bool Sphere::hit(const Ray& r, const f32 t_min, const f32 t_max, HitRecord& record)
 {
 	vec3 oc = r.origin() - center;
-	float a = dot(r.direction(), r.direction());
-	float b = 2 * dot(r.direction(), oc);
-	float c = dot(oc, oc) - radius * radius;
-	float D = b * b - 4 * a * c;
-#ifdef _DEBUG
-	float h = this->center.getY();
-#endif
+	f32 a = dot(r.direction(), r.direction());
+	f32 b = 2 * dot(r.direction(), oc);
+	f32 c = dot(oc, oc) - radius * radius;
+	f32 D = b * b - 4 * a * c;
+
 	if (D > 0)
 	{
 		//âÇ™ê≥ïâ
 		if (c < 0)
 		{
-			float tmp = (-b + sqrt(D)) / (2.0 * a);
+			f32 tmp = (-b + sqrtf(D)) / (2.0f * a);
 			if (tmp < t_max && tmp > t_min)
 			{
 				record.t = tmp;
@@ -32,7 +30,7 @@ bool Sphere::hit(const Ray& r, const f32 t_min, const f32 t_max, HitRecord& reco
 		}
 		else
 		{
-			float tmp = (-b - sqrt(D)) / (2.0 * a);
+			f32 tmp = (-b - sqrtf(D)) / (2.0f * a);
 			if (tmp < t_max && tmp > t_min)
 			{
 				record.t = tmp;
@@ -42,7 +40,7 @@ bool Sphere::hit(const Ray& r, const f32 t_min, const f32 t_max, HitRecord& reco
 				return true;
 			}
 
-			tmp = (-b + sqrt(D)) / (2.0 * a);
+			tmp = (-b + sqrtf(D)) / (2.0f * a);
 			if (tmp < t_max && tmp > t_min)
 			{
 				record.t = tmp;
@@ -81,8 +79,8 @@ bool isIntersecting(const AABB& aabb, const Ray& ray, f32 t_min, f32 t_max)
 				return false;
 			}
 
-			t_min = fmax(t_min, t_min_x);
-			t_max = fmin(t_max, t_max_x);
+			t_min = fmaxf(t_min, t_min_x);
+			t_max = fminf(t_max, t_max_x);
 
 			if (t_max <= t_min)
 			{

@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "node.h"
 
 Node::Node(std::vector<std::unique_ptr<Object> >&& objectList)
@@ -37,6 +38,11 @@ Node::Node(std::vector<std::shared_ptr<Hittable> >&& hittableList)
 	//２つ以上オブジェクトがある場合、まだ分割を行う。
 	else
 	{
+		//ここで適切なソートを行うとよい
+		//{
+		//	std::sort(hittableList.begin(), hittableList.end(), [](const std::shared_ptr<Hittable>& p0, const std::shared_ptr<Hittable>& p1){});
+		//}
+
 		std::vector<std::shared_ptr<Hittable> > objectListLhs(std::make_move_iterator(hittableList.begin()), std::make_move_iterator(hittableList.begin() + hittableList.size() / 2));
 		std::vector<std::shared_ptr<Hittable> > objectListRhs(std::make_move_iterator(hittableList.begin() + hittableList.size() / 2), std::make_move_iterator(hittableList.end()));
 
@@ -101,7 +107,6 @@ bool Node::hit(const Ray& r, const f32 t_min, const f32 t_max, HitRecord& record
 		return true;
 	}
 }
-
 
 Object::Object(std::shared_ptr<Hittable>&& hittableObject)
 {

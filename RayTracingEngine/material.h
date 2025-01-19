@@ -2,7 +2,7 @@
 #include "ray.h"
 
 
-class HitRecord;
+struct HitRecord;
 
 class Material 
 {

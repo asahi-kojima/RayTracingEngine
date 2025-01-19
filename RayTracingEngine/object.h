@@ -5,8 +5,9 @@
 #include "hittable.h"
 
 
-struct AABB : public Hittable
+class AABB : public Hittable
 {
+public:
 	AABB() = default;
 	AABB(vec3 minPos, vec3 maxPos)
 		: minPos(minPos), maxPos(maxPos) {}

@@ -1,20 +1,13 @@
 #pragma once
 #include <math.h>
 #include <cmath>
+#include "util.h"
 #include "ray.h"
 #include "vector.h"
 
 class Camera
 {
 public:
-	//Camera()
-	//{
-	//	origin = vec3(0.0, 0.0, 0.0);
-	//	lowerLeftCorner = vec3(-2.0f, -1.0f, -1.0f);
-	//	horizontal = vec3(4.0f, 0.0f, 0.0f);
-	//	vertical = vec3(0.0f, 2.0f, 0.0f);
-	//}
-
 	Camera(vec3 lookFrom, vec3 lookAt, vec3 vUp, f32 vfov, f32 aspect, f32 aperture = 0, f32 focusDist = 1)
 	{
 		lensRadius = aperture / 2;
@@ -36,11 +29,18 @@ public:
 
 	Ray getRay(f32 s, f32 t)
 	{
-		//vec3 rd = lensRadius * randominUnitDisk();
-		//vec3 offset = u * rd.x() + v * rd.y();
-		//vec3 rayOrigin = origin + offset;
-		vec3 rayOrigin = origin;
-		return Ray(rayOrigin, lowerLeftCorner + s * horizontal + t * vertical - rayOrigin);
+		vec3 offset;
+		if (lensRadius > 1e-5)
+		{
+			vec3 rd = lensRadius * random_in_unit_disk();
+			offset = u * rd[0] + v * rd[1];
+		}
+		else
+		{
+			offset = vec3::zero();
+		}
+		vec3 rayOrigin = origin + offset;
+		return Ray(rayOrigin, normalize(lowerLeftCorner + s * horizontal + t * vertical - rayOrigin));
 	}
 
 
@@ -50,4 +50,21 @@ public:
 	vec3 vertical;
 	vec3 u, v, w;
 	f32 lensRadius;
+
+
+private:
+	/// <summary>
+	/// ƒwƒ‹ƒp[ŠÖ”
+	/// </summary>
+	/// <returns></returns>
+	static vec3 random_in_unit_disk()
+	{
+		vec3 p;
+		do
+		{
+			p = vec3(RandomGenerator::signed_uniform_real(), RandomGenerator::signed_uniform_real(), 0);
+		} while (dot(p, p) >= 1.0f);
+
+		return p;
+	}
 };

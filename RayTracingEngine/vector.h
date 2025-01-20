@@ -7,6 +7,11 @@ class vec3
 public:
 	vec3() = default;
 	vec3(f32 x, f32 y, f32 z) : mPos{ x, y, z }, mLength(-1) {}
+	vec3(u32 hexadecimal) 
+		: mPos{ static_cast<f32>((hexadecimal & 0xFF0000) >> 16) / 255.0f,  static_cast<f32>((hexadecimal & 0x00FF00) >> 8) / 255.0f, static_cast<f32>((hexadecimal & 0x0000FF) >> 0) / 255.0f },
+		mLength(-1)
+	{
+	}
 
 	f32 getX() const { return mPos[0]; }
 	f32 getY() const { return mPos[1]; }
@@ -20,6 +25,8 @@ public:
 
 	f32& operator[](size_t i);
 	f32 operator[](size_t i) const;
+
+	vec3 operator-() const;
 
 	vec3 operator+(const vec3&) const;
 	vec3& operator+=(const vec3&);
@@ -45,22 +52,23 @@ public:
 	//static f32 inner(const vec3&, const vec3&);
 
 	static inline vec3 zero() { return vec3(0.0f, 0.0f, 0.0f); };
-	static inline vec3 black() { return vec3(0.0f, 0.0f, 0.0f); };
 	static inline vec3 one() { return vec3(1.0f, 1.0f, 1.0f); };
+
+	static inline vec3 black() { return vec3(0.0f, 0.0f, 0.0f); };
 	static inline vec3 white() { return vec3(1.0f, 1.0f, 1.0f); };
 	static inline vec3 gray() { return vec3::white() * 0.3f; };
 	static inline vec3 red() { return vec3(1.0f, 0.0f, 0.0f); };
 	static inline vec3 green() { return vec3(0.0f, 1.0f, 0.0f); };
 	static inline vec3 blue() { return vec3(0.0f, 0.0f, 1.0f); };
+	static inline vec3 bronze() { return vec3(0xD99730); }
 
-	constexpr vec3(int) : mPos{0,0,0}, mLength(-1) {}
+	//constexpr vec3(/*int*/) : mPos{0,0,0}, mLength(-1) {}
 
 
 private:
 	f32 mPos[3];
 	f32 mLength;
 };
-
 
 
 vec3 operator*(const f32 value, const vec3& v);

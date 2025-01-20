@@ -43,6 +43,9 @@ private:
 
 bool isIntersecting(const AABB& aabb, const Ray& ray, f32 t_min, f32 t_max);
 
+
+
+
 class Sphere : public Hittable
 {
 public:

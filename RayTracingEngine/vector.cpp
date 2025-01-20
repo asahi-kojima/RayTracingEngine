@@ -22,6 +22,14 @@ f32 vec3::operator[](size_t i) const
 	return mPos[i]; 
 }
 
+vec3 vec3::operator-() const
+{
+	const f32 x = this->mPos[0];
+	const f32 y = this->mPos[1];
+	const f32 z = this->mPos[2];
+	return vec3(-x, -y, -z);
+}
+
 vec3 vec3::operator+(const vec3& v) const
 {
 	const vec3& u = *this;

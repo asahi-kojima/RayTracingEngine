@@ -13,6 +13,12 @@
 #include "util.h"
 
 
+struct SecondaryInfoByRay
+{
+	u32 depth;
+};
+
+
 class RayTracingEngine
 {
 public:
@@ -36,13 +42,16 @@ public:
 	/// </summary>
 	/// <param name="sampleSize">同じピクセルから何本のレイを飛ばすか指定</param>
 	/// <param name="depth">反射回数を指定</param>
-	void render(const u32 sampleSize = 30, const u32 depth = 20);
+	void render(const u32 sampleSize = 30, const u32 depth = 15);
 
 	/// <summary>
 	/// 指定されたパスにレンダリング結果を保存する。
 	/// </summary>
 	/// <param name="path">保存先のパス</param>
 	void saveRenderResult(const std::string& path) const;
+
+
+	void drawTrajectory(u32 i, u32 j);
 
 private:
 	std::shared_ptr<Camera> mCamera = nullptr;
@@ -62,5 +71,8 @@ private:
 	/// <param name="ray_in"></param>
 	/// <param name="Depth"></param>
 	/// <returns></returns>
-	vec3 color(const Ray& ray_in, s32 Depth);
+	vec3 color(const Ray& ray_in, s32 depth);
+
+
+	vec3 color(const Ray& ray_in, s32 depth, SecondaryInfoByRay& debugInfo);
 };

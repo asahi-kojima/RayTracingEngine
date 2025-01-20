@@ -27,6 +27,11 @@ public:
 		return mu + sigma * mNormalDist(mRandomGenerator);
 	}
 
+	static s32 uniform_int(s32 a = 0, s32 b = 1)
+	{
+		return 1;
+	}
+
 	static std::random_device rd;
 	static std::mt19937 mRandomGenerator;
 	static std::normal_distribution<f32> mNormalDist;

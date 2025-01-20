@@ -16,14 +16,14 @@ public:
 		f32 halfHeight = tan(theta / 2);
 		f32 halfWidth = aspect * halfHeight;
 
-		origin = lookFrom;
-		w = normalize(lookFrom - lookAt);//z
-		u = normalize(cross(vUp, w));//x
-		v = cross(w, u);//y
+		mEyeOrigin = lookFrom;
+		mCameraZ = normalize(lookFrom - lookAt);//z
+		mCameraX = normalize(cross(vUp, mCameraZ));//x
+		mCameraY = cross(mCameraZ, mCameraX);//y
 
-		lowerLeftCorner = origin - focusDist * w - focusDist * halfWidth * u - focusDist * halfHeight * v;
-		horizontal = focusDist * 2 * halfWidth * u;
-		vertical = focusDist * 2 * halfHeight * v;
+		mScreenOrigin = mEyeOrigin - focusDist * mCameraZ - focusDist * halfWidth * mCameraX - focusDist * halfHeight * mCameraY;
+		horizontal = focusDist * 2 * halfWidth * mCameraX;
+		vertical = focusDist * 2 * halfHeight * mCameraY;
 	}
 
 
@@ -33,26 +33,34 @@ public:
 		if (lensRadius > 1e-5)
 		{
 			vec3 rd = lensRadius * random_in_unit_disk();
-			offset = u * rd[0] + v * rd[1];
+			offset = mCameraX * rd[0] + mCameraY * rd[1];
 		}
 		else
 		{
 			offset = vec3::zero();
 		}
-		vec3 rayOrigin = origin + offset;
-		return Ray(rayOrigin, normalize(lowerLeftCorner + s * horizontal + t * vertical - rayOrigin));
+		vec3 rayOrigin = mEyeOrigin + offset;
+		return Ray(rayOrigin, normalize(mScreenOrigin + s * horizontal + t * vertical - rayOrigin));
 	}
 
+	vec3 getEyeOrigin() const { return mEyeOrigin; }
+	vec3 getScreenOrigin() const { return mScreenOrigin; }
+	vec3 getCameraX() const { return mCameraX; }
+	vec3 getCameraY() const { return mCameraY; }
+	vec3 getCameraZ() const { return mCameraZ; }
+	f32 getHorizontalScreenScale() const { return dot(horizontal, mCameraX); }
+	f32 getVerticalScreenScale() const { return dot(vertical, mCameraY); }
 
-	vec3 origin;
-	vec3 lowerLeftCorner;
+private:
+
+	vec3 mEyeOrigin;
+	vec3 mScreenOrigin;//ç∂â∫Ç™å¥ì_
 	vec3 horizontal;
 	vec3 vertical;
-	vec3 u, v, w;
+	vec3 mCameraX, mCameraY, mCameraZ;
 	f32 lensRadius;
 
 
-private:
 	/// <summary>
 	/// ÉwÉãÉpÅ[ä÷êî
 	/// </summary>

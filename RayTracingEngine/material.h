@@ -28,3 +28,31 @@ private:
 	vec3 albedo;
 	f32 fuzz;
 };
+
+
+
+class Dielectric : public Material
+{
+public:
+	Dielectric(float ref) : refIdx(ref) {}
+
+private:
+	virtual bool scatter(const Ray& ray_in, const HitRecord& record, vec3& attenuation, Ray& ray_scattered) override;
+
+	static bool isRefract(const vec3& v, const vec3& n, float niOverNt, vec3& refracted);
+
+	static f32 schlick(float cosine, float refIdx);
+
+
+	f32 refIdx;
+};
+
+
+class SunLight : public Material
+{
+public:
+	SunLight() {}
+
+private:
+	virtual bool scatter(const Ray& ray_in, const HitRecord& record, vec3& attenuation, Ray& ray_scattered) override;
+};

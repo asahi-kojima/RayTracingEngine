@@ -6,7 +6,7 @@
 class RenderTarget
 {
 public:
-	RenderTarget(u32 resolutionWidth, u32 resolutionHeight)
+	RenderTarget(u32 resolutionWidth, u32 resolutionHeight, vec3 clearColor = vec3::black())
 		: mResolutionWidth(resolutionWidth)
 		, mResolutionHeight(resolutionHeight)
 		, mPixelSize(resolutionHeight* resolutionWidth)

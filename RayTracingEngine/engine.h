@@ -1,10 +1,5 @@
 #pragma once
-#include <iostream>
-#include <random>
-#include <omp.h>
-#include <map>
-#include <thread>
-#include <mutex>
+
 #include "debug-setting.h"
 #include "object.h"
 #include "camera.h"

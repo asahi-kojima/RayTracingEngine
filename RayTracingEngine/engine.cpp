@@ -1,5 +1,11 @@
+#include <cmath>
+#include <iostream>
+#include <random>
+#include <omp.h>
+#include <map>
+#include <thread>
+#include <mutex>
 #include "engine.h"
-
 //============================================
 /*
 äJî≠ÉÅÉÇ
@@ -143,56 +149,98 @@ vec3 RayTracingEngine::color(const Ray& ray_in, s32 depth, SecondaryInfoByRay& a
 
 void RayTracingEngine::drawTrajectory(u32 i, u32 j)
 {
-	f32 u = static_cast<f32>(i) / static_cast<f32>(mScreenResolutionWidth - 1);
-	f32 v = static_cast<f32>(j) / static_cast<f32>(mScreenResolutionHeight - 1);
+	auto calc_coeff = [](const vec3& O, const vec3& D, f32 t, const Camera& camera, f32& alpha, f32& beta)
+		{
+			const vec3& Os = camera.getScreenOrigin();
+			const vec3& I = camera.getEyeOrigin();
+			const vec3& Nx = camera.getCameraX();
+			const vec3& Ny = camera.getCameraY();
+			const vec3& Nz = camera.getCameraZ();
+
+			vec3 Pt = O + t * D;
+			f32 s = dot(Os - I, Nz) / dot(Pt - I, Nz);
+			if (!std::isfinite(s))
+			{
+				t = -0.001f;
+				Pt = O + t * D;
+				s = dot(Os - I, Nz) / dot(Pt - I, Nz);
+			}
+			const vec3 Pintersect = I + (Pt - I) * s;
+
+			const f32 Sx = camera.getHorizontalScreenScale();
+			const f32 Sy = camera.getVerticalScreenScale();
+
+			alpha = dot(Pintersect - Os, Nx) / Sx;
+			beta = dot(Pintersect - Os, Ny) / Sy;
+		};
+
+	const f32 u = static_cast<f32>(i) / static_cast<f32>(mScreenResolutionWidth - 1);
+	const f32 v = static_cast<f32>(j) / static_cast<f32>(mScreenResolutionHeight - 1);
 	Ray ray = mCamera->getRay(u, v);
 
 	const s32 MaxDepth = 20;
 	s32 depth = MaxDepth;
+
 	bool isNextRayExist = true;
 	HitRecord record;
+
+
 	while (depth >= 0 && isNextRayExist)
 	{
 		bool isHit = mRootNode->hit(ray, 0.01f, 1e+10, record);
-		f32 t = (isHit ? record.t : 100.0f);
 
-		const u32 DeltaStep = 1000;
-		for (u32 i = 1; i < DeltaStep; i++)
+		f32 t = (isHit ? record.t : 1000.0f);
+
+		const vec3 O = ray.origin();
+		const vec3 D = ray.direction();
+
+		f32 alpha0, beta0, alpha1, beta1;
+		calc_coeff(O, D, 0.0f, *mCamera, alpha0, beta0);
+		calc_coeff(O, D, t, *mCamera, alpha1, beta1);
+
+		s32 lattice_x_0 = static_cast<s32>(alpha0 * (mScreenResolutionWidth - 1));
+		s32 lattice_x_1 = static_cast<s32>(alpha1 * (mScreenResolutionWidth - 1));
+		s32 lattice_y_0 = static_cast<s32>(beta0 * (mScreenResolutionHeight - 1));
+		s32 lattice_y_1 = static_cast<s32>(beta1 * (mScreenResolutionHeight - 1));
+
+		//lattice_x_0 = clamp(lattice_x_0, 0, static_cast<s32>(mScreenResolutionWidth - 1));
+		//lattice_x_1 = clamp(lattice_x_1, 0, static_cast<s32>(mScreenResolutionWidth - 1));
+		//lattice_y_0 = clamp(lattice_y_0, 0, static_cast<s32>(mScreenResolutionHeight - 1));
+		//lattice_y_1 = clamp(lattice_y_1, 0, static_cast<s32>(mScreenResolutionHeight - 1));
+
+		f32 lattice_length = sqrtf(powf(lattice_x_0 - lattice_x_1, 2) + powf(lattice_y_0 - lattice_y_1, 2));
+		if (lattice_length > 0.9f)
 		{
-			const f32 t0 = i * t / DeltaStep;
-
-			const vec3 P = ray.pointAt(t0);
-			const vec3 S = mCamera->getScreenOrigin();
-			const vec3 I = mCamera->getEyeOrigin();
-			const vec3 W = mCamera->getCameraZ();
-			const f32 s = dot(W, (S - I)) / dot(W, (P - I));
-
-			const vec3 intersectionPoint = I + s * (P - I);
-
-			const f32 alpha = dot(intersectionPoint - S, mCamera->getCameraX()) / mCamera->getHorizontalScreenScale();
-			const f32 beta = dot(intersectionPoint - S, mCamera->getCameraY()) / mCamera->getVerticalScreenScale();
-
-			if (!(alpha >= 0.0f && alpha <= 1.0f && beta >= 0.0f && beta <= 1.0f))
+			bool isSwaped = false;
+			if (lattice_x_0 > lattice_x_1)
 			{
-				continue;
+				swap(lattice_x_0, lattice_x_1);
+				swap(lattice_y_0, lattice_y_1);
+				isSwaped = true;
 			}
 
-
-			s32 screenX = static_cast<s32>((mScreenResolutionWidth - 1) * alpha);
-			s32 screenY = static_cast<s32>((mScreenResolutionHeight - 1) * beta);
-
-			const s32 LineWidth = 1;
-			for (s32 j = -LineWidth; j <= LineWidth; j++)
+			const f32 inclination = (lattice_y_1 - lattice_y_0) * 1.0f / (lattice_x_1 - lattice_x_0);//åXÇ´ÅF0Ç…Ç»ÇÈÇ±Ç∆ÇÕÇ»Ç¢ÅB
+			f32 deltaStep = sqrt(1 + powf(min(abs(inclination), abs(1.0f / inclination)), 2)) / 2.0f;
+			for (f32 total_step = 0.0f; total_step < lattice_length; total_step += deltaStep)
 			{
-				for (s32 k = -LineWidth; k <= LineWidth; k++)
+				f32 theta = atan(inclination);
+				f32 step_x = total_step * cos(theta);
+				f32 step_y = total_step * sin(theta);
+
+				s32 lattice_x = static_cast<s32>(lattice_x_0 + step_x);
+				s32 lattice_y = static_cast<s32>(lattice_y_0 + step_y);
+
+				f32 gradation = total_step / lattice_length;
+				gradation = (isSwaped ? 1 - gradation : gradation);
+				vec3 drawColor = vec3::red() * (1 - gradation) + vec3::blue() * gradation;
+
+				if (!(lattice_x > 0 && lattice_x < mScreenResolutionWidth && lattice_y > 0 && lattice_y < mScreenResolutionHeight))
 				{
-					s32 shiftedScreenX = min(max((screenX + j), 0), mScreenResolutionWidth - 1);
-					s32 shiftedScreenY = min(max((screenY + k), 0), mScreenResolutionHeight - 1);
-
-					vec3 color = vec3::red() + (vec3::blue() - vec3::red()) * (i * 1.0f / DeltaStep);
-					mRenderTarget->setColor(shiftedScreenX, shiftedScreenY, color * depth / MaxDepth);
+					continue;
 				}
+				mRenderTarget->setColor(lattice_x, lattice_y, drawColor);
 			}
+
 		}
 
 		if (!isHit)
@@ -208,55 +256,5 @@ void RayTracingEngine::drawTrajectory(u32 i, u32 j)
 		ray = ray_next;
 
 
-		/*if (mRootNode->hit(ray, 0.01f, 1e+10, record))
-		{
-			f32 t = record.t;
-			for (u32 i = 1; i < 100; i++)
-			{
-				const f32 t0 = i * t / 100.0f;
-
-				const vec3 P = ray.pointAt(t0);
-				const vec3 S = mCamera->getScreenOrigin();
-				const vec3 I = mCamera->getEyeOrigin();
-				const vec3 W = mCamera->getCameraZ();
-				const f32 s = dot(W, (S - I)) / dot(W, (P - I));
-
-				const vec3 intersectionPoint = I + s * (P - I);
-
-				const f32 alpha = dot(intersectionPoint - S, mCamera->getCameraX()) / mCamera->getHorizontalScreenScale();
-				const f32 beta = dot(intersectionPoint - S, mCamera->getCameraY()) / mCamera->getVerticalScreenScale();
-
-				if (!(alpha >= 0.0f && alpha <= 1.0f && beta >= 0.0f && beta <= 1.0f))
-				{
-					continue;
-				}
-
-
-				s32 screenX = static_cast<s32>((mScreenResolutionWidth - 1) * alpha);
-				s32 screenY = static_cast<s32>((mScreenResolutionHeight - 1) * beta);
-
-				const s32 LineWidth = 1;
-				for (s32 j = -LineWidth; j <= LineWidth; j++)
-				{
-					for (s32 k = -LineWidth; k <= LineWidth; k++)
-					{
-						s32 shiftedScreenX = min(max((screenX + j), 0), mScreenResolutionWidth - 1);
-						s32 shiftedScreenY = min(max((screenY + k), 0), mScreenResolutionHeight - 1);
-
-						mRenderTarget->setColor(shiftedScreenX, shiftedScreenY, vec3::white());
-					}
-				}
-			}
-
-			depth--;
-			vec3 attenuation;
-			Ray ray_next;
-			isNextRayExist = record.material->scatter(ray, record, attenuation, ray_next);
-			ray = ray_next;
-		}
-		else
-		{
-			isNextRayExist = false;
-		}*/
 	}
 }

@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
+    <ClInclude Include="color.h" />
     <ClInclude Include="debug-setting.h" />
     <ClInclude Include="engine.h" />
     <ClInclude Include="hittable.h" />

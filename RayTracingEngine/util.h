@@ -29,7 +29,16 @@ public:
 
 	static s32 uniform_int(s32 a = 0, s32 b = 1)
 	{
-		return 1;
+		f32 rand = uniform_real(static_cast<f32>(a), static_cast<f32>(b));
+
+		return static_cast<s32>(rand);
+	}
+
+	static s32 uniform_int_round(s32 center = 0, s32 radius = 1)
+	{
+		f32 rand = uniform_real(static_cast<f32>(center - radius), static_cast<f32>(center + radius));
+
+		return static_cast<s32>(rand);
 	}
 
 	static std::random_device rd;
@@ -139,3 +148,18 @@ private:
 	sockaddr_in clientAddress;
 	bool isConnectionSuccessed = false;
 };
+
+
+template <typename T>
+void swap(T& a, T& b)
+{
+	T tmp = b;
+	b = a;
+	a = tmp;
+}
+
+template <typename T>
+T clamp(T v, T v_min, T v_max)
+{
+	return min(max(v, v_min), v_max);
+}

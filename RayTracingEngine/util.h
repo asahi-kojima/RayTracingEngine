@@ -2,6 +2,7 @@
 #include <random>
 #include <WinSock2.h>
 //#include <winsock.h>
+#include <mutex>
 #include <WS2tcpip.h>
 #include <Windows.h>
 #include <iostream>
@@ -53,8 +54,42 @@ inline std::normal_distribution<float> RandomGenerator::mNormalDist(0.0f, 1.0f);
 inline std::uniform_real_distribution<f32> RandomGenerator::mUniform0_1Dist(0.0f, 1.0f);
 
 
+/// <summary>
+/// アトミックなプリント処理を行うことが可能なプリンター
+/// </summary>
+class Printer
+{
+public:
+	void cout(const std::string& message, bool isAtomic = false)
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		std::cout << message << "\n";
+	}
+
+	void cout_title(const std::string& title, bool isAtomic = false)
+	{
+		std::string output_text = "";
+		output_text += "=================================\n";
+		output_text += ("==  " + title + "  ==\n");
+		output_text += "=================================\n";
+		if (isAtomic)
+		{
+			std::lock_guard<std::mutex> lock(mMutex);
+			std::cout << output_text;
+		}
+		else
+		{
+			std::cout << output_text;
+		}
+	}
 
 
+	void cerr() {}
+
+private:
+	std::mutex mMutex;
+
+};
 
 
 //レイトレーシングの結果を別のアプリケーションにリアルタイム送信するためのクラス
@@ -128,7 +163,7 @@ public:
 		{
 			//ここでベクトルデータを格納する
 			const f32 x = v.getX(); const f32 y = v.getY(); const f32 z = v.getZ();
-			
+
 			memcpy(messageBuffer + sizeof(f32) * 0, &width, sizeof(f32));
 			memcpy(messageBuffer + sizeof(f32) * 1, &height, sizeof(f32));
 			memcpy(messageBuffer + sizeof(f32) * 2, &x, sizeof(f32));

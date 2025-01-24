@@ -35,11 +35,13 @@
     <ClInclude Include="vector.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="color.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="material.cpp" />
     <ClCompile Include="node.cpp" />
     <ClCompile Include="object.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="thread-pool.cpp" />
     <ClCompile Include="vector.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

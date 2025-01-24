@@ -5,7 +5,7 @@
 //======================================================
 // 金属
 //======================================================
-bool Metal::scatter(const Ray& ray_in, const HitRecord& record, vec3& attenuation, Ray& ray_scattered)
+bool Metal::scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered)
 {
 	//新たなレイをセット
 	vec3 reflected_ray = reflect(ray_in.direction(), record.normal);
@@ -23,9 +23,9 @@ bool Metal::scatter(const Ray& ray_in, const HitRecord& record, vec3& attenuatio
 //======================================================
 // 誘電体
 //======================================================
-bool Dielectric::scatter(const Ray& ray_in, const HitRecord& record, vec3& attenuation, Ray& ray_scattered)
+bool Dielectric::scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered)
 {
-	attenuation = vec3(1.0f, 1.0f, 1.0f);
+	attenuation = Color::White;
 
 	vec3 outwardNormal;
 	vec3 reflected = reflect(ray_in.direction(), record.normal);
@@ -97,14 +97,63 @@ f32 Dielectric::schlick(f32 cosine, f32 refIdx)
 }
 
 
+//======================================================
+// 光源
+//======================================================
+bool Retroreflective::scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered)
+{
+	ray_scattered.direction() = -ray_in.direction();
+	ray_scattered.origin() = record.pos;
+
+	attenuation = albedo;
+
+	return true;
+}
 
 
 //======================================================
 // 光源
 //======================================================
 
-bool SunLight::scatter(const Ray& ray_in, const HitRecord& record, vec3& attenuation, Ray& ray_scattered)
+bool SunLight::scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered)
 {
-	attenuation = vec3::white();
+	attenuation = Color::White;
 	return false;
+}
+
+bool GravitationalField::scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered)
+{
+	const f32 m = 1.0f;
+	const f32 v = 1.0f;
+
+	const vec3 OC = mCenter - ray_in.origin();
+	const vec3 D = ray_in.direction();
+	const f32 ray_center_dist = (D * (dot(OC, D) / D.lengthSquared()) - OC).length();
+
+	const f32 E = 0.5f * m * v * v - G * mGravityScale * m / (record.pos - mCenter).length();
+	const f32 L = m * v * ray_center_dist;
+	const f32 R0 = L * L / G / mGravityScale;
+	const f32 typical_E = mGravityScale * mGravityScale * G * G / (2 * L * L);//典型的なエネルギースケールを意味しており、実際のエネルギーとは別
+
+	//離心率
+	const f32 e = sqrtf(1.0f + E / typical_E);
+
+	if (e < 1.0f)
+	{
+		return false;
+	}
+
+	attenuation = Color::White;
+
+	{
+		vec3 reflected_ray = reflect(ray_in.direction(), record.normal);
+
+		//最後の0.1fについてはreflected_rayの長さが１だが、それと同じオーダーにすると境界で無限反射が起きるので、それを防ぐため。
+		ray_scattered = Ray(record.pos, reflected_ray);
+
+		//表面色をセット
+
+		return (dot(ray_scattered.direction(), record.normal) > 0);
+	}
+	return true;
 }

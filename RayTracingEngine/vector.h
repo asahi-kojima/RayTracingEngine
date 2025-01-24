@@ -54,16 +54,6 @@ public:
 	static inline vec3 zero() { return vec3(0.0f, 0.0f, 0.0f); };
 	static inline vec3 one() { return vec3(1.0f, 1.0f, 1.0f); };
 
-	static inline vec3 black() { return vec3(0.0f, 0.0f, 0.0f); };
-	static inline vec3 white() { return vec3(1.0f, 1.0f, 1.0f); };
-	static inline vec3 gray() { return vec3::white() * 0.3f; };
-	static inline vec3 red() { return vec3(1.0f, 0.0f, 0.0f); };
-	static inline vec3 green() { return vec3(0.0f, 1.0f, 0.0f); };
-	static inline vec3 blue() { return vec3(0.0f, 0.0f, 1.0f); };
-	static inline vec3 bronze() { return vec3(0xD99730); }
-
-	//constexpr vec3(/*int*/) : mPos{0,0,0}, mLength(-1) {}
-
 
 private:
 	f32 mPos[3];

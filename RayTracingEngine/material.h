@@ -1,5 +1,6 @@
 #pragma once
 #include "ray.h"
+#include "color.h"
 
 
 struct HitRecord;
@@ -12,20 +13,20 @@ public:
 	/// — ‘¤‚©‚ç‚Ì“üË‚ğ‹–‚³‚È‚¢ê‡‚Í“üË•ûŒü‚É‚æ‚Á‚Äfalse‚Ìê‡‚à‹N‚«‚é
 	/// </summary>
 	/// <returns></returns>
-	virtual bool scatter(const Ray& ray_in, const HitRecord& record, vec3& attenuation, Ray& ray_scattered) = 0;
+	virtual bool scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered) = 0;
 };
 
 
 class Metal : public Material
 {
 public:
-	Metal(const vec3& albedo, f32 fuzz) : albedo(albedo), fuzz(fuzz < 1 ? fuzz : 1) {}
+	Metal(const Color& albedo, f32 fuzz) : albedo(albedo), fuzz(fuzz < 1 ? fuzz : 1) {}
 
 private:
-	virtual bool scatter(const Ray& ray_in, const HitRecord& record, vec3& attenuation, Ray& ray_scattered) override;
+	virtual bool scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered) override;
 
 
-	vec3 albedo;
+	Color albedo;
 	f32 fuzz;
 };
 
@@ -37,7 +38,7 @@ public:
 	Dielectric(float ref) : refIdx(ref) {}
 
 private:
-	virtual bool scatter(const Ray& ray_in, const HitRecord& record, vec3& attenuation, Ray& ray_scattered) override;
+	virtual bool scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered) override;
 
 	static bool isRefract(const vec3& v, const vec3& n, float niOverNt, vec3& refracted);
 
@@ -47,6 +48,16 @@ private:
 	f32 refIdx;
 };
 
+class Retroreflective : public Material
+{
+public:
+	Retroreflective(const Color& albedo) : albedo(albedo) {}
+
+private:
+	virtual bool scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered) override;
+
+	Color albedo;
+};
 
 class SunLight : public Material
 {
@@ -54,5 +65,20 @@ public:
 	SunLight() {}
 
 private:
-	virtual bool scatter(const Ray& ray_in, const HitRecord& record, vec3& attenuation, Ray& ray_scattered) override;
+	virtual bool scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered) override;
+};
+
+
+class GravitationalField : public Material
+{
+public:
+	GravitationalField(f32 gravityScale, vec3 center) :mGravityScale(gravityScale), mCenter(center){}
+
+	virtual bool scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered) override;
+
+
+private:
+	f32 mGravityScale;
+	constexpr static f32 G = 1.0f;
+	vec3 mCenter;
 };

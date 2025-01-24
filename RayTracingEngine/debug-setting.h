@@ -14,4 +14,4 @@
 #define REALTIME_GRAPHICAL_UDP_DEBUG OFF
 
 //onの場合、マルチスレッドで動作している描画コードをシングルスレッド実行に切り替えます
-#define ONLY_SINGLE_THREAD_DEBUG OFF
+#define ONLY_SINGLE_THREAD_DEBUG ON

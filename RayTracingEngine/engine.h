@@ -6,6 +6,7 @@
 #include "node.h"
 #include "render-target.h"
 #include "util.h"
+#include "thread-pool.h"
 
 
 struct SecondaryInfoByRay
@@ -66,8 +67,8 @@ private:
 	/// <param name="ray_in"></param>
 	/// <param name="Depth"></param>
 	/// <returns></returns>
-	vec3 color(const Ray& ray_in, s32 depth);
+	Color color(const Ray& ray_in, s32 depth);
 
 
-	vec3 color(const Ray& ray_in, s32 depth, SecondaryInfoByRay& debugInfo);
+	Color color(const Ray& ray_in, s32 depth, SecondaryInfoByRay& debugInfo);
 };

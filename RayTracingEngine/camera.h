@@ -11,6 +11,7 @@ public:
 	Camera(vec3 lookFrom, vec3 lookAt, vec3 vUp, f32 vfov, f32 aspect, f32 aperture = 0, f32 focusDist = 1)
 	{
 		lensRadius = aperture / 2;
+		focusDistance = focusDist;
 
 		f32 theta = vfov * M_PI / 180.0f;
 		f32 halfHeight = tan(theta / 2);
@@ -50,6 +51,7 @@ public:
 	vec3 getCameraZ() const { return mCameraZ; }
 	f32 getHorizontalScreenScale() const { return dot(horizontal, mCameraX); }
 	f32 getVerticalScreenScale() const { return dot(vertical, mCameraY); }
+	f32 getFocusDistance() const { return focusDistance; }
 
 private:
 
@@ -59,6 +61,7 @@ private:
 	vec3 vertical;
 	vec3 mCameraX, mCameraY, mCameraZ;
 	f32 lensRadius;
+	f32 focusDistance;
 
 
 	/// <summary>

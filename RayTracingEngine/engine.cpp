@@ -44,29 +44,13 @@ void RayTracingEngine::render(const u32 sampleSize, const u32 depth)
 	}
 
 
-	const f32 inv_coeff_width = 1.0f / static_cast<f32>(mScreenResolutionWidth - 1);
-	const f32 inv_coeff_heigth = 1.0f / static_cast<f32>(mScreenResolutionHeight - 1);
-#if !ONLY_SINGLE_THREAD_DEBUG
-#pragma omp parallel for
-#endif
+
 	for (s32 i = 0; i < mScreenResolutionWidth; i++)
 	{
 		for (u32 j = 0; j < mScreenResolutionHeight; j++)
 		{
-			Color resultColor = Color::White;
-			for (u32 s = 0; s < sampleSize; s++)
-			{
-				const f32 u = static_cast<f32>(i + RandomGenerator::signed_uniform_real() * 0.1f) * inv_coeff_width;
-				const f32 v = static_cast<f32>(j + RandomGenerator::signed_uniform_real() * 0.1f) * inv_coeff_heigth;
-				Ray ray = mCamera->getRay(u, v);
-
-				SecondaryInfoByRay additinalRayInfo;
-				resultColor += color(ray, depth, additinalRayInfo);
-			}
-			resultColor /= sampleSize;
-			mRenderTarget->setColor(i, j, resultColor);
-
-
+			auto task = std::bind(&RayTracingEngine::RayTrace, this, i, j, sampleSize, depth);
+			mThreadPool.push_task(task);
 
 #if REALTIME_GRAPHICAL_UDP_DEBUG
 			//計算結果をUDP通信でアプリケーションに送信する。
@@ -74,6 +58,8 @@ void RayTracingEngine::render(const u32 sampleSize, const u32 depth)
 #endif
 		}
 	}
+
+	mThreadPool.consume_all_tasks();
 
 	std::cout << "Ray Tracing Engine : Rendering Finish\n";
 }
@@ -86,6 +72,24 @@ void RayTracingEngine::saveRenderResult(const std::string& path) const
 	mRenderTarget->saveRenderResult(path);
 }
 
+
+void RayTracingEngine::RayTrace(u32 i, u32 j, u32 sampleSize, u32 depth)
+{
+	const f32 inv_coeff_width = 1.0f / static_cast<f32>(mScreenResolutionWidth - 1);
+	const f32 inv_coeff_heigth = 1.0f / static_cast<f32>(mScreenResolutionHeight - 1);
+	Color resultColor = Color::White;
+	for (u32 s = 0; s < sampleSize; s++)
+	{
+		const f32 u = static_cast<f32>(i + RandomGenerator::signed_uniform_real() * 0.1f) * inv_coeff_width;
+		const f32 v = static_cast<f32>(j + RandomGenerator::signed_uniform_real() * 0.1f) * inv_coeff_heigth;
+		Ray ray = mCamera->getRay(u, v);
+
+		SecondaryInfoByRay additinalRayInfo;
+		resultColor += color(ray, depth, additinalRayInfo);
+	}
+	resultColor /= sampleSize;
+	mRenderTarget->setColor(i, j, resultColor);
+}
 
 Color RayTracingEngine::color(const Ray& ray_in, s32 depth)
 {
@@ -251,7 +255,7 @@ void RayTracingEngine::drawTrajectory(u32 i, u32 j)
 					const Color drawColor = Color::Orange * (1 - powf(ratio, 1.0f / 3)) + Color::Black * powf(ratio, 1.0f / 3);*/
 
 					const f32 ratio = (isSwaped ? 1 - (total_step / lattice_length) : (total_step / lattice_length));
-					Color terminateColor = (dot(D, -mCamera->getCameraZ()) > 0 ? Color::Blue :  Color::Red);
+					Color terminateColor = (dot(D, -mCamera->getCameraZ()) > 0 ? Color::Blue : Color::Red);
 					const Color drawColor = Color::Black * (1 - powf(ratio, 1.0f / 2)) + terminateColor * powf(ratio, 1.0f / 2);
 
 #if 1
@@ -279,6 +283,22 @@ void RayTracingEngine::drawTrajectory(u32 i, u32 j)
 #endif
 				}
 
+			}
+		}
+		else
+		{
+			for (s32 scale = 0; scale < 5; scale++)
+			{
+				for (s32 dx = -1; dx < 2; dx+=2)
+				{
+					for (s32 dy = -1; dy < 2; dy+=2)
+					{
+						s32 lattice_x = i + dx * scale;
+						s32 lattice_y = j + dy * scale;
+						if (lattice_x >= 0 && lattice_x < mScreenResolutionWidth && lattice_y >= 0 && lattice_y < mScreenResolutionHeight)
+						mRenderTarget->setColor(lattice_x, lattice_y, Color::Black);
+					}
+				}
 			}
 		}
 

@@ -98,7 +98,7 @@ f32 Dielectric::schlick(f32 cosine, f32 refIdx)
 
 
 //======================================================
-// ŒõŒ¹
+// Ä‹A«”½Ë‘fŞ
 //======================================================
 bool Retroreflective::scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered)
 {
@@ -107,7 +107,7 @@ bool Retroreflective::scatter(const Ray& ray_in, const HitRecord& record, Color&
 
 	attenuation = albedo;
 
-	return true;
+	return false;
 }
 
 
@@ -121,6 +121,11 @@ bool SunLight::scatter(const Ray& ray_in, const HitRecord& record, Color& attenu
 	return false;
 }
 
+
+
+//======================================================
+// d—Íê
+//======================================================
 bool GravitationalField::scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered)
 {
 	const f32 m = 1.0f;
@@ -140,6 +145,7 @@ bool GravitationalField::scatter(const Ray& ray_in, const HitRecord& record, Col
 
 	if (e < 1.0f)
 	{
+		attenuation = Color::Black;
 		return false;
 	}
 

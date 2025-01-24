@@ -57,9 +57,14 @@ private:
 
 	std::unique_ptr<Node> mRootNode = nullptr;
 
+	ThreadPool mThreadPool;
+
 #if REALTIME_GRAPHICAL_UDP_DEBUG
 	UDPServer mUDPServer;
 #endif
+
+
+	void RayTrace(u32 i, u32 j, u32 sampleSize, u32 depth);
 
 	/// <summary>
 	/// 指定したレイ方向のワールドの「色」を回収する

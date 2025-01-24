@@ -36,4 +36,12 @@ void WorkerThread::run()
 	std::cout << mThreadId << " running finish" << std::endl;
 }
 
-
+void ThreadPool::consume_all_tasks()
+{
+	volatile bool isEmpty = false;
+	while (!isEmpty)
+	{
+		isEmpty = mTasks->empty();
+	}
+	std::cout << mTasks->size() << std::endl;
+}

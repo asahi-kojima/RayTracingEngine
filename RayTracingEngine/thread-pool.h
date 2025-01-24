@@ -135,6 +135,8 @@ public:
 
 	bool is_task_empty() const { return mTasks->empty(); }
 
+	void consume_all_tasks();
+
 private:
 	//Workerスレッドの方々
 	std::vector<std::unique_ptr<WorkerThread> > mWorkers;

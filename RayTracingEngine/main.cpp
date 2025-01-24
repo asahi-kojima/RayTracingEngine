@@ -4,9 +4,10 @@
 
 int main()
 {
-	//for (u32 i = 0; i < 100; i++)
+	//for (u32 i = 0; i < 1; i++)
 	//{
 	//	ThreadPool pool{};
+	//	std::this_thread::sleep_for(std::chrono::seconds(3));
 
 	//	for (u32 i = 0; i < 40; i++)
 	//	{
@@ -54,6 +55,7 @@ int main()
 
 		world.push_back(std::make_shared<Sphere>(vec3(0, -3000, 0), 3000, std::make_shared<Metal>(Color::Gray, 0.1)));
 
+		//world.push_back(std::make_shared<Sphere>(vec3(-12, 1, 2), 0.5f, std::make_shared<GravitationalField>(1, vec3(-12, 1, 2))));
 		world.push_back(std::make_shared<Sphere>(vec3(-12, 1, 2), 1.0f, std::make_shared<Metal>(Color(0.5, 0.8, 0.3), 0)));
 		world.push_back(std::make_shared<Sphere>(vec3(-8, 1, 0), 1.0f, std::make_shared<Metal>(Color(1, 1, 0.2), 0)));
 		world.push_back(std::make_shared<Sphere>(vec3(-4, 1, 0), 1.0f, std::make_shared<Dielectric>(10.0f)));
@@ -67,7 +69,7 @@ int main()
 
 
 	//カメラの準備
-	constexpr f32 BaseResolution = 1.0f * 1.0f;
+	constexpr f32 BaseResolution = 1.0f * 0.5f;
 	//constexpr f32 BaseResolution = 1.0f * 0.5f;
 	const u32 resolutionX = static_cast<u32>(1920 * BaseResolution);
 	const u32 resolutionY = static_cast<u32>(1080 * BaseResolution);
@@ -83,6 +85,7 @@ int main()
 	engine.setObjects(std::move(world));
 
 	engine.render();
+
 
 
 	for (s32 i = 0; i < 10; i++)

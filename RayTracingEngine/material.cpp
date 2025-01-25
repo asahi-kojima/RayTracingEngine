@@ -129,7 +129,7 @@ bool SunLight::scatter(const Ray& ray_in, const HitRecord& record, Color& attenu
 bool GravitationalField::scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered)
 {
 	const f32 m = 1.0f;
-	const f32 v = 1.0f;
+	const f32 v = 10.0f;
 
 	const vec3 OC = mCenter - ray_in.origin();
 	const vec3 D = ray_in.direction();
@@ -142,7 +142,6 @@ bool GravitationalField::scatter(const Ray& ray_in, const HitRecord& record, Col
 
 	//離心率
 	const f32 e = sqrtf(1.0f + E / typical_E);
-
 	if (e < 1.0f)
 	{
 		attenuation = Color::Black;
@@ -152,14 +151,24 @@ bool GravitationalField::scatter(const Ray& ray_in, const HitRecord& record, Col
 	attenuation = Color::White;
 
 	{
-		vec3 reflected_ray = reflect(ray_in.direction(), record.normal);
+		const vec3 CP = record.pos - mCenter;
+		const f32 R = CP.length();
+		const vec3 ux = -normalize(D);
+		const vec3 uz = normalize(cross(ux,CP));
+		const vec3 uy = cross(uz, ux);
+		const f32 h = abs(dot(ux, CP));
+		const f32 theta = asinf(h / R);
 
-		//最後の0.1fについてはreflected_rayの長さが１だが、それと同じオーダーにすると境界で無限反射が起きるので、それを防ぐため。
-		ray_scattered = Ray(record.pos, reflected_ray);
+		const f32 phi = -( acosf(((R0 / OC.length()) - 1) / e) - theta);
+		const f32 phi2 = 2 * phi;
 
-		//表面色をセット
+		const f32 x = cos(phi2) * R * cos(theta) + sin(phi2) * R * sin(theta);
+		const f32 y = sin(phi2) * R * cos(theta) - cos(phi2) * R * sin(theta);
+		const vec3 outgoing_pos = x * ux + y * uy + mCenter;
+		const vec3 outgoing_dir = cos(phi2) * ux + sin(phi2) * uy;
 
-		return (dot(ray_scattered.direction(), record.normal) > 0);
+		ray_scattered.direction() = outgoing_dir;
+		ray_scattered.origin() = outgoing_pos;
 	}
 	return true;
 }

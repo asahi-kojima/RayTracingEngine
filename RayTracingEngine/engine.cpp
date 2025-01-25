@@ -150,7 +150,7 @@ Color RayTracingEngine::color(const Ray& ray_in, s32 depth, SecondaryInfoByRay& 
 	{
 		vec3 unit_direction = normalize(ray_in.direction());
 		f32 t = 0.5f * (unit_direction.getY() + 1.0f);
-		return Color(0.4f, 0.4f, 1.0f) * (1.0f - t) + Color(0.5f, 0.7f, 1.0f) * t;
+		return  Color(0.4f, 0.4f, 1.0f)* (1.0f - t) + Color(0.5f, 0.7f, 1.0f) * t;
 	}
 }
 
@@ -287,7 +287,7 @@ void RayTracingEngine::drawTrajectory(u32 i, u32 j)
 		}
 		else
 		{
-			for (s32 scale = 0; scale < 5; scale++)
+			for (s32 scale = 0; scale < static_cast<s32>(5 * ( 1.0f + mScreenResolutionWidth / 1000)); scale++)
 			{
 				for (s32 dx = -1; dx < 2; dx+=2)
 				{

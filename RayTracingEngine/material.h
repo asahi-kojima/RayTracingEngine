@@ -20,7 +20,7 @@ public:
 class Metal : public Material
 {
 public:
-	Metal(const Color& albedo, f32 fuzz) : albedo(albedo), fuzz(fuzz < 1 ? fuzz : 1) {}
+	Metal(const Color& albedo, f32 fuzz = 0.0f) : albedo(albedo), fuzz(fuzz < 1 ? fuzz : 1) {}
 
 private:
 	virtual bool scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered) override;

@@ -3,6 +3,18 @@
 #include "util.h"
 
 //======================================================
+// ƒ‰ƒ“ƒo[ƒg
+//======================================================
+bool Lambertian::scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered)
+{
+	const vec3 target = record.pos + record.normal + random_in_unit_sphere();
+	ray_scattered.direction() = target - record.pos;
+	ray_scattered.origin() = record.pos;
+	attenuation = albedo;
+	return true;
+}
+
+//======================================================
 // ‹à‘®
 //======================================================
 bool Metal::scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered)
@@ -172,3 +184,5 @@ bool GravitationalField::scatter(const Ray& ray_in, const HitRecord& record, Col
 	}
 	return true;
 }
+
+

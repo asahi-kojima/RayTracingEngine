@@ -53,7 +53,7 @@ int main()
 		}
 
 
-		world.push_back(std::make_shared<Sphere>(vec3(0, -3000, 0), 3000, std::make_shared<Metal>(Color::Gray, 0.0)));
+		world.push_back(std::make_shared<Sphere>(vec3(0, -3000, 0), 3000, std::make_shared<Metal>(Color(0x0A0A0A), 0.0)));
 
 		world.push_back(std::make_shared<Sphere>(vec3(-12, 1, 2), 1.0f, std::make_shared<GravitationalField>(1.0f, vec3(-12, 1, 2))));
 		world.push_back(std::make_shared<Sphere>(vec3(-12, 1, 2), 1.0f, std::make_shared<Metal>(Color(0.5, 0.8, 0.3), 0)));

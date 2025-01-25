@@ -16,6 +16,18 @@ public:
 	virtual bool scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered) = 0;
 };
 
+class Lambertian : public Material
+{
+public:
+	Lambertian(const Color& color) : albedo(color){}
+	virtual bool scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered) override;
+
+
+private:
+	Color albedo;
+};
+
+
 
 class Metal : public Material
 {

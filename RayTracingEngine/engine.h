@@ -46,7 +46,12 @@ public:
 	/// <param name="path">保存先のパス</param>
 	void saveRenderResult(const std::string& path) const;
 
-
+	/// <summary>
+	/// 指定したピクセルに対してレイを飛ばし、その軌跡を描画する。
+	/// 主にデバッグ目的
+	/// </summary>
+	/// <param name="i"></param>
+	/// <param name="j"></param>
 	void drawTrajectory(u32 i, u32 j);
 
 private:

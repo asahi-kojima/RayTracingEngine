@@ -168,8 +168,8 @@ f32 vec3::lengthSquared() const
 	const f32 x = this->mPos[0];
 	const f32 y = this->mPos[1];
 	const f32 z = this->mPos[2];
-	const f32 lengthSquared = x * x + y * y + z * z;
-	return lengthSquared;
+	const f32 length2 = x * x + y * y + z * z;
+	return length2;
 }
 
 f32 vec3::lengthSquared(const vec3& v)

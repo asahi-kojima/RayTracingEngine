@@ -1,7 +1,7 @@
 #pragma once
 #include "ray.h"
 #include "color.h"
-
+#include "texture.h"
 
 struct HitRecord;
 
@@ -19,12 +19,12 @@ public:
 class Lambertian : public Material
 {
 public:
-	Lambertian(const Color& color) : albedo(color){}
+	Lambertian(const std::shared_ptr<Texture>& texture) : mTexture(texture){}
 	virtual bool scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered) override;
 
 
 private:
-	Color albedo;
+	std::shared_ptr<Texture> mTexture;
 };
 
 
@@ -85,6 +85,65 @@ class GravitationalField : public Material
 {
 public:
 	GravitationalField(f32 gravityScale, vec3 center) :mGravityScale(gravityScale), mCenter(center){}
+
+	virtual bool scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered) override;
+
+
+private:
+	f32 mGravityScale;
+	constexpr static f32 G = 1.0f;
+	vec3 mCenter;
+};
+
+class QuasiGravitationalField : public Material
+{
+public:
+	QuasiGravitationalField(f32 gravityScale, vec3 center) :mGravityScale(gravityScale), mCenter(center){}
+
+	virtual bool scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered) override;
+
+
+private:
+	f32 mGravityScale;
+	constexpr static f32 G = 1.0f;
+	vec3 mCenter;
+};
+
+
+class QuasiGravitationalField2 : public Material
+{
+public:
+	QuasiGravitationalField2(f32 gravityScale, vec3 center) :mGravityScale(gravityScale), mCenter(center){}
+
+	virtual bool scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered) override;
+
+
+private:
+	f32 mGravityScale;
+	constexpr static f32 G = 1.0f;
+	vec3 mCenter;
+};
+
+
+class Rutherford : public Material
+{
+public:
+	Rutherford(f32 gravityScale, vec3 center) :mGravityScale(gravityScale), mCenter(center) {}
+
+	virtual bool scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered) override;
+
+
+private:
+	f32 mGravityScale;
+	constexpr static f32 G = 1.0f;
+	vec3 mCenter;
+};
+
+
+class QuasiRutherford : public Material
+{
+public:
+	QuasiRutherford(f32 gravityScale, vec3 center) :mGravityScale(gravityScale), mCenter(center) {}
 
 	virtual bool scatter(const Ray& ray_in, const HitRecord& record, Color& attenuation, Ray& ray_scattered) override;
 

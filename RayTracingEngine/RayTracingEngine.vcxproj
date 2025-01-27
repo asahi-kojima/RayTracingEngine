@@ -29,6 +29,7 @@
     <ClInclude Include="object.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="render-target.h" />
+    <ClInclude Include="texture.h" />
     <ClInclude Include="thread-pool.h" />
     <ClInclude Include="typeinfo.h" />
     <ClInclude Include="util.h" />
@@ -41,6 +42,7 @@
     <ClCompile Include="node.cpp" />
     <ClCompile Include="object.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="texture.cpp" />
     <ClCompile Include="thread-pool.cpp" />
     <ClCompile Include="vector.cpp" />
   </ItemGroup>

@@ -29,12 +29,14 @@ public:
 	static const Color Gray;
 	static const Color Red;
 	static const Color Green;
+	static const Color Lime;
 	static const Color Blue;
 	static const Color Yellow;
 	static const Color Magenta;
 	static const Color Orange;
 	static const Color Gold;
 	static const Color Bronze;
+	static const Color Azure;
 
 private:
 	vec3 mRGB;
